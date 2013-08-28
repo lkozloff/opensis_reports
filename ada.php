@@ -20,7 +20,7 @@ $student_count = 0;
 $sdbh = connectDB();
 
 //when do we assume that a student shouldn't count against the percentages?
-$threshold = 30;
+$threshold = 15;
 
 //Figure out classes available
 $classq = $sdbh->prepare("SELECT * from school_gradelevels where school_id=2 order by sort_order asc");
@@ -41,15 +41,15 @@ $q2 = $sdbh->prepare("SELECT COUNT(*) as count from attendance_calendar where sy
 $q2->execute();
  $futuredaycount = $q2->fetch();
 
-print("Date range: $sdate - $edate\n");
+print("Date range: $sdate - $edate<br/>");
 print("Number of school days in range: ".($daycount['count']-$futuredaycount['count']));
 if($futuredaycount['count'] >0){ 
-	print("\n(".$futuredaycount['count']." occur in the future and will not be calculated)\n");
+	print("<br/>(".$futuredaycount['count']." occur in the future and will not be calculated)<br/>");
 	$edate = date("Y-m-d",strtotime("Today"));
-	print("effective date range: $sdate - $edate\n");
+	print("effective date range: $sdate - $edate<br/>");
 }
 
-print("\n");
+print("<br/>");
 
 //get total number of days per marking period from attendance calendar with the new effective date
 $q = $sdbh->prepare("SELECT COUNT(*) as count from attendance_calendar where syear=$syear AND school_id=2 AND school_date>='"
@@ -57,7 +57,7 @@ $q = $sdbh->prepare("SELECT COUNT(*) as count from attendance_calendar where sye
 $q->execute();
 $res = $q->fetch();
 
-print("Threshold set to $threshold, absences exceeding this amount will not count towards the totals. \n\n");
+print("Threshold set to $threshold, absences exceeding this amount will not count towards the totals. <br/><br/>");
 
    foreach($classes as $class){
 	
@@ -70,11 +70,12 @@ print("Threshold set to $threshold, absences exceeding this amount will not coun
 	$squery = $sdbh->prepare("SELECT * from student_enrollment where syear = ".$syear." and end_date IS NULL and grade_id = '".$class['id']."'");
 	$squery->execute();
 	$students = $squery->fetchAll(PDO::FETCH_ASSOC);
-	print(" - ".$class['title']." - \n");
+	print("<h1> - ".$class['title']." - </h1>");
+	print("<table><tr><th>SID</th><th>name</th><th>Absent</th><th>Late</th></tr>");
 	foreach($students as $student){
 	   
 		$sid = $student['student_id'];
-		//print("Working with student_id: $sid \n");
+		//print("Working with student_id: $sid <br/>");
 	
 	   //get total number of days present for selected student by
 	   $qda = $sdbh->prepare("
@@ -106,7 +107,7 @@ print("Threshold set to $threshold, absences exceeding this amount will not coun
 	   $student_dt = $dtres['count'];
 	   $student_da = $student_sdays - $dares['count'] - $dtres['count'];
 
-	   print("\t\t$sid\t\t".$sname['first_name']." ".$sname['last_name']."\t\t\t\tAbsent: $student_da\tTardy: $student_dt\n");
+	   print("<tr><td>$sid</td><td>".$sname['first_name']." ".$sname['last_name']."</td><td>$student_da</td><td>$student_dt</td></tr>");
 
            //don't want students who left to count against us	
 	   if($student_da<$threshold){
@@ -125,13 +126,14 @@ print("Threshold set to $threshold, absences exceeding this amount will not coun
 	  	   $student_count++;
 	   }
 	 }//end processing individual students
+	print("</table>");
 
 	//days absent are the total days - days present - days tardy (that is: all attendance codes that aren't 'present' or 'late')
 	$tda = $sdays - $da - $dt;
 	
 	if($student_count){
-		print("Number of Students: $student_count\n");
-		print("Total Days: $sdays\nTotal Tardies: $dt\nTotal Absences: $tda\nPercent Tardy:".round(100*$dt/$sdays)."%\nPercent Absent: ".round(100*$tda/$sdays)."%\n\n");
+		print("<h2>Number of Students: $student_count</h2>");
+		print("<h2>Total Days: $sdays<br/>Total Tardies: $dt<br/>Total Absences: $tda<br/>Percent Tardy:".round(100*$dt/$sdays)."%<br/>Percent Absent: ".round(100*$tda/$sdays)."%<br/><br/></h2>");
 		}
 
    }// end processing class
@@ -151,7 +153,7 @@ $da = $total_sdays - $total_da - $dt;
 
 
 
-print("*** SUMMARY ***\nTotal Days: $sdays\nTotal Tardies: $dt\nTotal Absences: $da\nPercent Tardy:".round(100*$dt/$sdays)."%\nPercent Absent: ".round(100*$da/$sdays)."%\n");
+print("<h2><br/>Total Days: $sdays<br/>Total Tardies: $dt<br/>Total Absences: $da<br/>Percent Tardy:".round(100*$dt/$sdays)."%<br/>Percent Absent: ".round(100*$da/$sdays)."%<br/></h2>");
 
 
 ?>
