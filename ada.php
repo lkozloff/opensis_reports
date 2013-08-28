@@ -129,6 +129,16 @@ $da2 = $total_sdays['2'] - $total_da['2'] - $dt2 - $unknownS2;
 
 
 print("*** SUMMARY ***\n\t*S1*\nTotal Days: $sdays1\nTotal Tardies: $dt1\nTotal Absences: $da1\nPercent Tardy:".round(100*$dt1/$sdays1)."%\nPercent Absent: ".round(100*$da1/$sdays1)."%\n");
-print("\t*S2*\nTotal Days: $sdays2\nTotal Tardies: $dt2\nTotal Absences: $da2\nPercent Tardy:".round(100*$dt2/$sdays2)."%\nPercent Absent: ".round(100*$da2/$sdays2)."%\n");
+print("\t*S2*\nTotal Days: $sdays2\nTotal Tardies: $dt2\nTotal Absences: $da2\nPercent Tardy:".round(100*$dt2/$sdays2)."%\nPercent Absent: ".round(100*$da2/$sdays2)."%\n\n");
+
+$tsdays = $sdays1 + $sdays2;
+$tdt = $dt1 + $dt2;
+$tda = $todal_da['1'] + $total_da['2'];
+$tunknown = $unknownS1+$unknownS2;
+$tda = $da1+$da2;
+
+print("\t*FY*\nTotal Days: $tsdays\nTotal Tardies: $tdt\nTotal Absences: $tda\nPercent Tardy:".round(100*$tdt/$tsdays)."%\nPercent Absent: ".round(100*$tda/$tsdays)."%\n\n");
+
+
 
 ?>
