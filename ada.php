@@ -8,7 +8,7 @@ include("connectdb.php");
 //things to specify
 $syear = 2013;
 $sdate = "2013-08-01";
-$edate = "2013-08-31";
+$edate = "2013-08-25";
 
 //initial values
 $total_sdays = 0;
@@ -49,13 +49,15 @@ if($futuredaycount['count'] >0){
 	print("effective date range: $sdate - $edate\n");
 }
 
-print("\n\n");
+print("\n");
 
 //get total number of days per marking period from attendance calendar with the new effective date
 $q = $sdbh->prepare("SELECT COUNT(*) as count from attendance_calendar where syear=$syear AND school_id=2 AND school_date>='"
  .$sdate."' AND school_date<='".$edate."'");
 $q->execute();
 $res = $q->fetch();
+
+print("Threshold set to $threshold, absences exceeding this amount will not count towards the totals. \n\n");
 
    foreach($classes as $class){
 	
@@ -68,7 +70,9 @@ $res = $q->fetch();
 	$squery = $sdbh->prepare("SELECT * from student_enrollment where syear = ".$syear." and end_date IS NULL and grade_id = '".$class['id']."'");
 	$squery->execute();
 	$students = $squery->fetchAll(PDO::FETCH_ASSOC);
+	print(" - ".$class['title']." - \n");
 	foreach($students as $student){
+	   
 		$sid = $student['student_id'];
 		//print("Working with student_id: $sid \n");
 	
@@ -93,9 +97,20 @@ $res = $q->fetch();
 	   $qdt->execute();
 	   $dtres = $qdt->fetch();
 
+	   //get student name
+	   $sq = $sdbh->prepare("select first_name, last_name from students where student_id = '$sid'");
+	   $sq->execute();
+	   $sname = $sq->fetch();
+
+	   $student_sdays = $res['count'];
+	   $student_dt = $dtres['count'];
+	   $student_da = $student_sdays - $dares['count'] - $dtres['count'];
+
+	   print("\t\t$sid\t\t".$sname['first_name']." ".$sname['last_name']."\t\t\t\tAbsent: $student_da\tTardy: $student_dt\n");
 
            //don't want students who left to count against us	
-	   if(($res['count']-$dares['count'])<$threshold){
+	   if($student_da<$threshold){
+
 		   $sdays += $res['count'];
 		   $da += $dares['count'];
 		   $dt += $dtres['count'];
@@ -112,12 +127,11 @@ $res = $q->fetch();
 	 }//end processing individual students
 
 	//days absent are the total days - days present - days tardy (that is: all attendance codes that aren't 'present' or 'late')
-	$da = $sdays - $da - $dt;
+	$tda = $sdays - $da - $dt;
 	
 	if($student_count){
-		print(" - ".$class['title']." - \n");
 		print("Number of Students: $student_count\n");
-		print("Total Days: $sdays\nTotal Tardies: $dt\nTotal Absences: $da\nPercent Tardy:".round(100*$dt/$sdays)."%\nPercent Absent: ".round(100*$da/$sdays)."%\n\n");
+		print("Total Days: $sdays\nTotal Tardies: $dt\nTotal Absences: $tda\nPercent Tardy:".round(100*$dt/$sdays)."%\nPercent Absent: ".round(100*$tda/$sdays)."%\n\n");
 		}
 
    }// end processing class
