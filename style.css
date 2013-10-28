@@ -1,0 +1,27 @@
+body{
+	font-family: sans-serif;
+}
+h1{
+	font-size: 12pt;
+}
+h2{
+	font-size: 12pt;
+}
+table{
+        font-size: 10pt;
+        border:none;
+	border-collapse: collapse;
+}
+tr{
+	border: 1px solid black;
+        border-collapse: collapse;
+}
+td{
+	border: none;
+        border-collapse: collapse;
+}
+th{
+	background-color: rgb(200,200,200);
+	border: none;
+        border-collapse: collapse;
+}
