@@ -32,8 +32,10 @@ $db = connectDB();
 function getDailyAttendanceData($db){
 
         $q = $db->prepare("
-            select * from attendance_calendar where syear=2013 
-                AND school_date <'".date("Y-m-d",strtotime("Tomorrow"))."'
+            select * from attendance_calendar where  
+                school_date <'".date("Y-m-d",strtotime("Tomorrow"))."'
+                and syear=2013
+                order by school_date asc
         ");
 	$q->execute();
 	$res = $q->fetchAll();
@@ -41,7 +43,7 @@ function getDailyAttendanceData($db){
         foreach($res as $day){
             $cur_date = $day['school_date'];
             $qa = $db->prepare("
-                SELECT attendance_code, COUNT( attendance_code ) AS count
+                SELECT count(distinct student_id) as count, attendance_code
                 FROM attendance_period
                 WHERE school_date =  '$cur_date'
                 GROUP BY attendance_code
@@ -51,26 +53,29 @@ function getDailyAttendanceData($db){
             $codes = $qa->fetchAll();
             foreach($codes as $code){
                 switch($code['attendance_code']){
+                    case 8:
+                        $sick += $code['count'];
+                        break;
+                    case 15:
+                        $sick += $code['count'];
+                        break;
+                    case 18:
+                        $sick += $code['count'];
+                        break;
+                    case 28:
+                        $sick += $code['count'];
+                        break;
+                    case 32:
+                        $sick += $code['count'];
+                        break;
                     case 45:
                         $sick += $code['count'];
                         break;
                     case 41:
                         $sick += $code['count'];
                         break;
-                    case 43:
-                        $present += $code['count'];
-                        break;
-                    case 38:
-                        $present += $code['count'];
-                        break;
-                    case 47:
-                        $present += $code['count'];
-                        break;
-                    case 35:
-                        $present += $day['count'];
-                        break;
                     default:
-                        $absent += $day['count'];
+                        $present += $code['count'];
             }
         }
     print("['$cur_date',$present,$sick],");
