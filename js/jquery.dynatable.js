@@ -536,6 +536,7 @@
             },
             attrType = a[attr] ? typeof(a[attr]) : typeof(b[attr]),
             type = types[attrType] || 'number';
+            console.log(type);
         return type;
       },
       // Built-in sort functions
