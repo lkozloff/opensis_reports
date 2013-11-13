@@ -71,6 +71,7 @@
 
   </style>
 <script type="text/javascript">
+   $(document).ready( function() {
        $('table').each(function() {
         var $table = $(this);
  
@@ -82,8 +83,9 @@
            var csv = $table.table2CSV({delivery:'value'});
             window.location.href = 'data:text/csv;charset=UTF-8,'
                             + encodeURIComponent(csv);
-        });
-    });
+          });
+       });
+    }); //end document.ready
   </script>
 </head>
 <body>    
