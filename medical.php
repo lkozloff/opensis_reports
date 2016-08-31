@@ -73,74 +73,89 @@
   </script>
 </head>
 <body>
-<h1>Medical Report - August</h1><br/>
+
 <?php
     include("connectdb.php");
-    $db = connectDB();
+    include_once("data.php");
+    if($_REQUEST['key'] == $SecretKey){
+            print "<h1>Medical Report - ".date('F Y')."</h1>";
 
-    $q = $db->prepare("
-select 
- IF(student_enrollment.school_id='1','LIS','AHIS') as school,
- Grade.grade,
- school_date as date,
- students.student_id, 
- students.first_name, 
- students.last_name, 
- reason, result
+            $d = new DateTime('first day of this month');
+            $first = $d->format('Y-m-d');
 
-from 
-   students,
-   student_medical_visits,
-   student_enrollment,
+            $d = new DateTime('last day of this month');
+            $last = $d->format('Y-m-d');
 
-(SELECT
-school_gradelevels.short_name as grade,
-school_gradelevels.id as grade_id
-FROM school_gradelevels) as Grade
 
-where school_date>'2016-08-01' AND school_date<'2016-08-31' AND 
-students.student_id = student_medical_visits.student_id AND
-student_enrollment.student_id = students.student_id AND
-student_enrollment.syear = (SELECT MAX(syear) from school_years) AND
-student_enrollment.grade_id = Grade.grade_id
+            $db = connectDB();
+            $q = $db->prepare("
+              select
+               IF(student_enrollment.school_id='1','LIS','AHIS') as school,
+               Grade.grade,
+               school_date as date,
+               students.student_id,
+               students.first_name,
+               students.last_name,
+               reason, result
 
-    ");
-    $q->execute();
-    $result = $q->fetchAll();
+              from
+                 students,
+                 student_medical_visits,
+                 student_enrollment,
 
-    print("<table id = 'example-table'>
-	<thead><tr>
-		<th style='width:4em;'>School</th>
-		<th style='width:3em;'>Grade</th>
-		<th>Date</th>
-		<th style='width:4em;'>SID</th>
-		<th>Name</th>
-		<th>Reason</th>
-		<th>Result</th>
-            </tr></thead>");
-    foreach($result as $row){
-        $date= $row['date'];
-        $sid = $row['student_id'];
-        $sname= $row['last_name'];
-        $fname = $row['first_name'];
-        $reason= $row['reason'];
-        $med_result= $row['result'];
-        $school= $row['school'];
-        $grade= $row['grade'];
+              (SELECT
+              school_gradelevels.short_name as grade,
+              school_gradelevels.id as grade_id
+              FROM school_gradelevels) as Grade
 
-    print("<tr>
-		<td>$school</td>
-		<td>$grade</td>
-		<td>$date</td>
-		<td>$sid</td>
-		<td>$sname".", "."$fname</td>
-		<td>$reason</td>
-		<td>$med_result</td>
+              where school_date>'".$first."' AND school_date<'".$last."' AND
+              students.student_id = student_medical_visits.student_id AND
+              student_enrollment.student_id = students.student_id AND
+              student_enrollment.syear = (SELECT MAX(syear) from school_years) AND
+              student_enrollment.grade_id = Grade.grade_id
 
-		</tr>");
+            ");
+            $q->execute();
+            $result = $q->fetchAll();
+
+            print("
+            <table id = 'example-table'>
+        	  <thead><tr>
+                		<th style='width:4em;'>School</th>
+                		<th style='width:3em;'>Grade</th>
+                		<th>Date</th>
+                		<th style='width:4em;'>SID</th>
+                		<th>Name</th>
+                		<th>Reason</th>
+                		<th>Result</th>
+                  </tr>
+            </thead>");
+            foreach($result as $row){
+                $date= $row['date'];
+                $sid = $row['student_id'];
+                $sname= $row['last_name'];
+                $fname = $row['first_name'];
+                $reason= $row['reason'];
+                $med_result= $row['result'];
+                $school= $row['school'];
+                $grade= $row['grade'];
+
+            print("
+            <tr>
+          		<td>$school</td>
+          		<td>$grade</td>
+          		<td>$date</td>
+          		<td>$sid</td>
+          		<td>$sname".", "."$fname</td>
+          		<td>$reason</td>
+          		<td>$med_result</td>
+
+        		</tr>");
+            }
+            print("</table>");
     }
-    print("</table>");
-
+    else{
+      print "ah ah ah - you didn't say the magic word!";
+    }
 ?>
 </body>
-
