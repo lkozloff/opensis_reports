@@ -85,7 +85,6 @@
             $d = new DateTime('last day of this month');
             $last = $d->format('Y-m-d');
 
-            print empty($_REQUEST['start_date']);
             if(isset($_REQUEST['start_date']))
               $first = $_REQUEST['start_date'];
 
