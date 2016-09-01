@@ -78,13 +78,37 @@
     include("connectdb.php");
     include_once("data.php");
     if($_REQUEST['key'] == $SecretKey){
-            print "<h1>Medical Report - ".date('F Y')."</h1>";
-
+            //defaults for first and last
             $d = new DateTime('first day of this month');
             $first = $d->format('Y-m-d');
 
             $d = new DateTime('last day of this month');
             $last = $d->format('Y-m-d');
+
+            print empty($_REQUEST['start_date']);
+            if(isset($_REQUEST['start_date']))
+              $first = $_REQUEST['start_date'];
+
+
+            if(isset($_REQUEST['end_date']))
+              $last = $_REQUEST['end_date'];
+
+
+            print "<h1>Medical Report <small>(Generated ".date('Y-m-d').")</small></h1>";
+
+
+
+?>
+            <form method="post" action="<?php echo $_SERVER['HTTP_REFERER'];?>"  >
+              <label>Start</label>
+              <input type="date" id="start_date" name="start_date" value="<?php echo $first;?>"/>
+              <label>End</label>
+              <input type="date" id="end_date" name="end_date" value="<?php echo $last; ?>"/>
+              <input type="hidden" name="key" value="<?php echo $_REQUEST['key']; ?>"/>
+            </form>
+<?php
+
+
 
 
             $db = connectDB();
@@ -108,7 +132,7 @@
               school_gradelevels.id as grade_id
               FROM school_gradelevels) as Grade
 
-              where school_date>'".$first."' AND school_date<'".$last."' AND
+              where school_date>='".$first."' AND school_date<='".$last."' AND
               students.student_id = student_medical_visits.student_id AND
               student_enrollment.student_id = students.student_id AND
               student_enrollment.syear = (SELECT MAX(syear) from school_years) AND
@@ -159,3 +183,17 @@
     }
 ?>
 </body>
+<script type="text/javascript">
+$(document).ready( function() {
+
+      $('#start_date').change(function() {
+        this.form.submit();
+      });
+      $('#end_date').change(function() {
+        this.form.submit();
+      });
+
+});
+
+</script>
+</html>
