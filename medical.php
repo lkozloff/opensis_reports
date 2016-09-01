@@ -1,76 +1,12 @@
 <html>
 <head>
-    <script src="js/jquery-1.7.2.min.js" type="text/javascript"></script>
-    <script src="js/jquery.dynatable.js" type="text/javascript"></script>
-     <style>
-    /* Example Styles for Demo */
-    table {
-      border: solid 1px #ccc;    border-collapse: collapse;
-      border-spacing: 0;
-      position: relative; /* Add positioning */
-    }
-    td, th {
-      border-bottom: solid 1px #eee;
-      border-top: solid 1px #ccc;
-      border-left: solid 1px #eee;
-      border-right: solid 1px #ccc;
-      padding: 10px 15px;
-    }
-    th {
-      background: #eee;
-      width: 150px;
-    }
-    a{
-        text-decoration: none;
-        color: gray;
-    }
-.dynatable-search {
-  float: right;
-  margin-bottom: 10px;
-}
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
-.dynatable-pagination-links {
-  float: right;
-}
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.12/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-.dynatable-record-count {
-  display: block;
-  padding: 5px 0;
-}
-
-.dynatable-pagination-links span,
-.dynatable-pagination-links li {
-  display: inline-block;
-}
-
-.dynatable-page-link,
-.dynatable-page-break {
-  display: block;
-  padding: 5px 7px;
-}
-
-.dynatable-page-link {
-  cursor: pointer;
-}
-
-.dynatable-active-page {
-  background: #71AF5A;
-  border-radius: 5px;
-  color: #fff;
-}
-.dynatable-page-prev.dynatable-active-page,
-.dynatable-page-next.dynatable-active-page {
-  background: none;
-  color: #999;
-  cursor: text;
-}
-
- </style>
-<script type="text/javascript">
-    $(document).ready( function() {
-        $('#example-table').dynatable();
-    });
-  </script>
 </head>
 <body>
 
@@ -142,7 +78,8 @@
             $result = $q->fetchAll();
 
             print("
-            <table id = 'example-table'>
+            <div class='dataTable_wrapper'>
+            <table id='medical-table' class='table table-striped table-hover'>
         	  <thead><tr>
                 		<th style='width:4em;'>School</th>
                 		<th style='width:3em;'>Grade</th>
@@ -175,15 +112,37 @@
 
         		</tr>");
             }
-            print("</table>");
+            print("</table></div>");
     }
     else{
       print "ah ah ah - you didn't say the magic word!";
     }
 ?>
 </body>
+<script src="js/sorting.js"></script>
 <script type="text/javascript">
 $(document).ready( function() {
+      var table = $('#medical-table').DataTable({
+         responsive: true,
+         pageLength: 25,
+         search: {caseInsensitive: false},
+        
+         columnDefs: [
+                { type: 'grades', targets: 1 }
+        ],
+         buttons: [
+           {
+                    extend: 'csvHtml5',
+                    text: 'TSV export <i class="fa fa-download"></i>',
+                    className: 'btn btn-sm btn-success',
+                    fieldSeparator: '\t',
+                    extension: '.tsv',
+                    title: 'IntakeSurveys'
+                },
+
+        ]
+        });
+
 
       $('#start_date').change(function() {
         this.form.submit();
