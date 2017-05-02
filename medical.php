@@ -71,6 +71,7 @@
               students.student_id = student_medical_visits.student_id AND
               student_enrollment.student_id = students.student_id AND
               student_enrollment.syear = (SELECT MAX(syear) from school_years) AND
+              student_enrollment.end_date IS NULL AND
               student_enrollment.grade_id = Grade.grade_id
 
             ");
